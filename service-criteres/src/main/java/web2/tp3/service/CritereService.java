@@ -1,211 +1,92 @@
-//package web2.tp3.service;
-//
-//import web2.tp3.model.Critere;
-//import web2.tp3.model.TypeCritere;
-//import web2.tp3.model.Nouvelle;
-//import web2.tp3.model.User;
-//
-//import web2.tp3.repository.CritereRepository;
-//import web2.tp3.service.ValidationCritere;
-//import web2.tp3.service.UserService;
-//import web2.tp3.service.NouvelleService;
-//import web2.tp3.events.UserDeleteEvent;
-//
-//
-//import jakarta.transaction.Transactional;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.CommandLineRunner;
-//import org.springframework.context.event.EventListener;
-//import org.springframework.stereotype.Service;
-//
-//import java.time.LocalDateTime;
-//import java.util.Collection;
-//import java.util.List;
-//
-//@Service
-//public class CritereService implements CommandLineRunner {
-//
-//    private final CritereRepository critereRepository;
-//    private final Logger logger = LoggerFactory.getLogger(CritereService.class);
-//    private final ValidationCritere validationCritere;
-//    private final UserService userService;
-//    private final NouvelleService nouvelleService;
-//
-//    //injecter le service nouvelle
-//    @Autowired
-//    public CritereService(CritereRepository critereRepository, ValidationCritere validationCritere, UserService userService, NouvelleService nouvelleService) {
-//        this.critereRepository = critereRepository;
-//        this.validationCritere = validationCritere;
-//        this.userService = userService;
-//        this.nouvelleService = nouvelleService;
-//    }
-//
-//    @Override
-//    public void run(String... args) {
-//        if (critereRepository.count() == 0) {
-//            logger.info("Initialisation de la base de données...");
-//            logger.info("Création de 5 critères par défaut...");
-//            System.out.println("Création de 5 critères par défaut...");
-//            creerCriteresParDefaut();
-//            logger.info("Base de données initialisée avec {} criteres.", critereRepository.count());
-//        }
-//    }
-//
-//    private void creerCriteresParDefaut() {
-//
-//        //ajout des users pour la creation des criteres par defaults
-//        List<User>userList = userService.getAllUsers();
-//        if (userList==null || userList.isEmpty()) {
-//            logger.info("Aucun utilisateur trouvé — création des utilisateurs par défaut...");
-//            userService.createDefaultUsers();
-//            userList = userService.getAllUsers();
-//        }
-//        TypeCritere [] typeCriteres = new TypeCritere[]{
-//                TypeCritere.CHRONOLOGIE,TypeCritere.CHRONOLOGIE,TypeCritere.LONGUEUR,TypeCritere.LONGUEUR
-//                ,TypeCritere.RECHERCHE
-//        };
-//        for (int i = 0; i <typeCriteres.length ; i++) {
-//            //on utilise modilo pour distribuer entre les user
-//            User user = userList.get(i%userList.size());
-//            Critere critereDef = new Critere();
-//            critereDef.setType(typeCriteres[i]);
-//            critereDef.setIdUtilisateur(user.getId());
-//            critereDef.setUtilisateurNom(user.getNom());
-//            critereDef.setCreeQuand(LocalDateTime.now());
-//            String validation = validationCritere.valider(critereDef);
-//            if (!validation.isEmpty()){
-//                logger.warn("Critère par défaut non valide (type={}): {}", typeCriteres[i], validation);
-//                continue;
-//            }
-//            critereRepository.save(critereDef);
-//            logger.info("Critère par défaut créé: type={} pour utilisateur {} ({})", typeCriteres[i], user.getId(), user.getNom());
-//        }
-//        logger.info("Création des critères par défaut terminée. Total = {}", critereRepository.count());
-//    }
-//
-//
-//    public Collection<Critere> getAllCriteres() {
-//        logger.info("CritereService -> getAllCriteres");
-//        return critereRepository.findAll();
-//    }
-//
-//    public Critere creerCritere(Critere critere){
-//        logger.info("Création du critère : {}", critere.getType());
-//        String messageErreur = validationCritere.valider(critere);
-//        if(!messageErreur.isEmpty()){
-//            logger.error("Ecchec de la validation :{}",messageErreur);
-//            throw new IllegalArgumentException(messageErreur);
-//        }
-//        // définir la date
-//        critere.setCreeQuand(LocalDateTime.now());
-//        if (critere.getUtilisateurNom() == null) {
-//            User user = userService.getUserById(critere.getIdUtilisateur());
-//            critere.setUtilisateurNom(user.getNom());
-//        }
-//        logger.info("Critère créé avec succès : {}",critere.getType());
-//        return critereRepository.save(critere);
-//    }
-//
-//    //  Obtenir un critère par ID
-//    public Critere getCritereById(Long id) {
-//        logger.info("CritereService -> getCritereById({})", id);
-//        return critereRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Critère introuvable avec l'id " + id));
-//    }
-//
-//    //  Mettre à jour un critère existant
-//    public Critere mettreAJourCritere(Long id, Critere nouveauCritere) {
-//        logger.info("CritereService -> mettreAJourCritere({})", id);
-//
-//        Critere critereExistant = critereRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Critère introuvable avec l'id " + id));
-//
-//
-//        String messageErreur = validationCritere.valider(nouveauCritere);
-//        if (!messageErreur.isEmpty()) {
-//            logger.error("Échec de la validation : {}", messageErreur);
-//            throw new IllegalArgumentException(messageErreur);
-//        }
-//
-//        // Mise à jour des champs
-//        if (nouveauCritere.getType() != null) {
-//            critereExistant.setType(nouveauCritere.getType());
-//        }
-//        if (nouveauCritere.getIdUtilisateur() != null) {
-//            critereExistant.setIdUtilisateur(nouveauCritere.getIdUtilisateur());
-//        }
-//
-//        logger.info("Critere mis à jour : {}", critereExistant);
-//        return critereRepository.save(critereExistant);
-//    }
-//
-//    public void supprimerCritere(Long id) {
-//
-//        logger.info("Suppression du critère id={}", id);
-//        critereRepository.deleteById(id);
-//
-//        // Vérifie si la table est vide
-//        if (critereRepository.count() == 0) {
-//            logger.warn("Tous les critères ont été supprimés — recréation des critères par défaut...");
-//            creerCriteresParDefaut();
-//        }
-//    }
-//    /**
-//     * Supprime tous les critères associés à un utilisateur lorsque celui-ci est supprimé.
-//     * Écoute les UserDeleteEvent publiés par le module utilisateur.
-//     */
-//    @EventListener
-//    @Transactional
-//    public void supprimerCriteresUser(UserDeleteEvent event) {
-//        Long userId = event.getUserId();
-//        logger.info("CritereService -> supprimerCriteresUser : pour Id user={}",userId);
-//        //suppression
-//        critereRepository.deleteByIdUtilisateur(userId);
-//        logger.info("CritereService -> critères supprimés pour userId={}", userId);
-//
-//        // Si la table devient vide, recréer les critères par défaut (comportement existant)
-//        if (critereRepository.count() == 0) {
-//            logger.warn("Tous les critères supprimés après suppression d'utilisateur — recréation des critères par défaut...");
-//            creerCriteresParDefaut();
-//        }
-//    }
-//
-//    public List<Nouvelle> getNouvellesByCritere(Long critereId) {
-//
-//        logger.info("Récupération des nouvelles pour le critère id={}", critereId);
-//        Critere critere = getCritereById(critereId);
-//
-//        // On récupère tout, et on initialise le retour avec cette liste par défaut
-//        List<Nouvelle> nouvelles = (List<Nouvelle>) nouvelleService.getAllNouvelles();
-//        List<Nouvelle> nouvellesRetour = nouvelles;
-//
-//        if (critere == null) {
-//            throw new IllegalArgumentException("Le critère ne peut pas être null : " + critereId);
-//        }
-//
-//        if (critere.getType().equals(TypeCritere.LONGUEUR)) {
-//            // Tri par longueur de texte (croissant)
-//            nouvellesRetour = nouvelles.stream()
-//                    .sorted((a, b) -> a.getTexte().length() - b.getTexte().length())
-//                    .toList();
-//
-//        } else if (critere.getType().equals(TypeCritere.CHRONOLOGIE)) {
-//            // Tri par date : b comparé à a pour avoir le plus RÉCENT en premier
-//            nouvellesRetour = nouvelles.stream()
-//                    .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
-//                    .toList();
-//
-//        } else if (critere.getType().equals(TypeCritere.RECHERCHE)) {
-//            // Filtre par mot-clé
-//            if (critere.getRecherche() != null && !critere.getRecherche().isEmpty()) {
-//                nouvellesRetour = nouvelles.stream()
-//                        .filter(nouvelle -> nouvelle.getTexte().toLowerCase().contains(critere.getRecherche().toLowerCase()))
-//                        .toList();
-//            }
-//        }
-//
-//        return nouvellesRetour;
-//    }
-//}
+package web2.tp3.service;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import web2.tp3.dto.NouvelleDTO;
+import web2.tp3.dto.UserDTO;
+import web2.tp3.model.Critere;
+import web2.tp3.model.TypeCritere;
+import web2.tp3.repository.CritereRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class CritereService {
+
+    private final CritereRepository critereRepository;
+    private final RestClient restClient;
+
+    public CritereService(CritereRepository critereRepository, RestClient.Builder builder) {
+        this.critereRepository = critereRepository;
+        // On construit le client HTTP
+        this.restClient = builder.build();
+    }
+
+    public Critere createCritere(Critere critere) {
+        // 1. Appel REST pour récupérer le nom de l'utilisateur
+        try {
+            UserDTO user = restClient.get()
+                    .uri("http://service-utilisateurs:8080/api/users/" + critere.getIdUtilisateur())
+                    .retrieve()
+                    .body(UserDTO.class);
+
+            if (user != null) {
+                critere.setUtilisateurNom(user.getNom());
+            }
+        } catch (Exception e) {
+            System.out.println("Impossible de contacter service-utilisateurs : " + e.getMessage());
+            critere.setUtilisateurNom("Inconnu");
+        }
+
+        return critereRepository.save(critere);
+    }
+
+    public List<Critere> getAllCriteres() {
+        return critereRepository.findAll();
+    }
+
+    public void deleteCritere(Long id) {
+        critereRepository.deleteById(id);
+        // Ici, on pourrait appeler service-nouvelles pour notifier, si demandé
+    }
+
+    // Le fameux endpoint complexe qui appelle le service-nouvelles
+    public List<NouvelleDTO> getNouvellesFiltrees(Long critereId) {
+        Critere critere = critereRepository.findById(critereId)
+                .orElseThrow(() -> new RuntimeException("Critère introuvable"));
+
+        // 1. Récupérer TOUTES les nouvelles via REST
+        List<NouvelleDTO> nouvelles;
+        try {
+            nouvelles = restClient.get()
+                    .uri("http://service-nouvelles:8080/nouvelles")
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<NouvelleDTO>>() {});
+        } catch (Exception e) {
+            System.out.println("Service nouvelles indisponible");
+            return List.of(); // Retourne vide si le service est down
+        }
+
+        if (nouvelles == null) return List.of();
+
+        // 2. Filtrage Java (Logique du TP2)
+        if (critere.getType() == TypeCritere.LONGUEUR) {
+            return nouvelles.stream()
+                    .sorted((a, b) -> (a.getTexte().length() + a.getResume().length()) - (b.getTexte().length() + b.getResume().length()))
+                    .collect(Collectors.toList());
+        } else if (critere.getType() == TypeCritere.CHRONOLOGIE) {
+            return nouvelles.stream()
+                    .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+                    .collect(Collectors.toList());
+        } else if (critere.getType() == TypeCritere.RECHERCHE && critere.getRecherche() != null) {
+            String motCle = critere.getRecherche().toLowerCase();
+            return nouvelles.stream()
+                    .filter(n -> n.getTitre().toLowerCase().contains(motCle) || n.getTexte().toLowerCase().contains(motCle))
+                    .collect(Collectors.toList());
+        }
+
+        return nouvelles;
+    }
+}

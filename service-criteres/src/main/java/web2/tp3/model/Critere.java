@@ -1,44 +1,29 @@
-//package web2.tp3.model;
-//
-//import com.fasterxml.jackson.annotation.JsonFormat;
-//import jakarta.persistence.*;
-//import lombok.*;
-//import org.springframework.data.annotation.Id;
-//
-//import java.time.LocalDateTime;
-//
-//@Entity
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@ToString
-//@EqualsAndHashCode
-//@Data
-//public class Critere {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long idCritere;
-//
-//    @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)      // Protection BD
-//    private TypeCritere type;
-//
-//    @Column(nullable = false)      // Protection BD
-//    private Long idUtilisateur;
-//
-//    //private Long idNouvelle;
-//
-//    private String utilisateurNom;
-//
-//    private String recherche;
-//
-//    @Column(nullable = false)
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    private LocalDateTime creeQuand;
-//
-//
-//    public Critere(TypeCritere type) {this.type=type;}
-//    public Critere(TypeCritere type,Long idUtilisateur) {this.type=type; this.idUtilisateur=idUtilisateur;}
-//
-//}
+package web2.tp3.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
+@Entity
+@Data
+@NoArgsConstructor
+public class Critere {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idCritere;
+
+    @Enumerated(EnumType.STRING)
+    private TypeCritere type;
+
+    private Long idUtilisateur; // On garde juste l'ID, pas l'objet User complet
+    private String utilisateurNom; // On stocke le nom pour éviter de le demander à chaque fois
+    private String recherche; // Mot clé si type RECHERCHE
+
+    private LocalDateTime creeQuand;
+
+    @PrePersist
+    public void prePersist() {
+        this.creeQuand = LocalDateTime.now();
+    }
+}

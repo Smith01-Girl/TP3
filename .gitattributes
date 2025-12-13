@@ -1,0 +1,5 @@
+# Force le fichier mvnw à utiliser les fins de ligne Linux (LF)
+**/mvnw text eol=lf
+
+# Force les fichiers .cmd à utiliser les fins de ligne Windows (CRLF)
+*.cmd text eol=crlf
