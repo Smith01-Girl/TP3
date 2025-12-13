@@ -17,6 +17,7 @@ services:
     networks:
       - tp3-network
 
+  # Discovery
   discovery:
     build: ./discovery
     container_name: discovery
@@ -24,6 +25,7 @@ services:
     networks:
       - tp3-network
 
+  # Gateway
   gateway:
     build: ./gateway
     container_name: gateway
@@ -36,6 +38,7 @@ services:
     networks:
       - tp3-network
 
+  # Service Utilisateurs
   service-utilisateurs:
     build: ./service-utilisateurs
     container_name: service-utilisateurs
