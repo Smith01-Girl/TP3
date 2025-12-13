@@ -1,16 +1,13 @@
-
 FROM openjdk:17-ea-slim AS build
-
 WORKDIR /app
 
-# Copier Maven wrapper
+# Copier wrapper Maven
 COPY .mvn/ .mvn
-COPY mvnw ./
+COPY mvnw .
+COPY pom.xml .
 
 
-COPY pom.xml ./
-RUN ./mvnw dependency:go-offline
-
+# Copier code source
 COPY src/ ./src
 RUN ./mvnw clean package -DskipTests
 
@@ -18,14 +15,11 @@ RUN ./mvnw clean package -DskipTests
 FROM openjdk:17-ea-slim
 WORKDIR /app
 
-# Copier JAR
 COPY --from=build /app/target/*.jar app.jar
 
-# Ports
-EXPOSE 8080
-EXPOSE 5010
+EXPOSE 8084
+EXPOSE 5005
 
-# Démarrer avec debug
 ENTRYPOINT ["java", "-jar", \
-    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010", \
+    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", \
     "app.jar"]

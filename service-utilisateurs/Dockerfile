@@ -1,4 +1,3 @@
-# Stage 1: Build
 FROM openjdk:17-ea-slim AS build
 WORKDIR /app
 
@@ -7,9 +6,6 @@ COPY .mvn/ .mvn
 COPY mvnw .
 COPY pom.xml .
 
-#RUN ./mvnw dependency:go-offline -f pom.xml
-
-#COPY service-utilisateurs/pom.xml ./pom.xml
 
 # Copier code source
 COPY src/ ./src

@@ -60,6 +60,19 @@ services:
       eureka.client.fetch-registry: "true"
     networks:
         - tp3-network
+
+#  service-statistiques:
+#    build: service-statistiques
+#    container_name: service-utilisateurs
+#    depends_on:
+#      - discovery
+#    ports:
+#      - "8084:8084"
+#      - "5005:5005"
+#    networks:
+#      - tp3-network
+
+
 volumes:
   mysql_data:
 
