@@ -41,10 +41,10 @@ public class ValidationUser {
         }
 
 
-        if (user.getDateNaissance() == null) {
+        if (user.getDateOfBirth() == null) {
             return "La date de naissance est requise.";
         }
-        if (user.getDateNaissance().isAfter(LocalDate.now())) {
+        if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             return "La date de naissance doit être dans le passé.";
         }
 

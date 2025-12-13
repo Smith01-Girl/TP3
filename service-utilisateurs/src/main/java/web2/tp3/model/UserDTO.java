@@ -24,7 +24,7 @@ public class UserDTO {
 
        @NotNull(message = "La date de naissance est requise")
        @Past(message = "La date de naissance doit être dans le passé")
-       private LocalDate dateNaissance;
+       private LocalDate dateOfBirth;
 
-       private LocalDateTime created;
+       private LocalDate inscriptionDate;
 }

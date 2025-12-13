@@ -1,5 +1,6 @@
 package web2.tp3.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import web2.tp3.events.UserDeleteEvent;
 import web2.tp3.exceptions.BadRequestException;
 import web2.tp3.exceptions.ResourceNotFoundException;
@@ -26,6 +27,7 @@ public class UserService {
     private final ValidationUser validationUser;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         log.info("**************** Getting all users *****************");
@@ -36,6 +38,11 @@ public class UserService {
         log.info("**************** Getting user by id ****************");
         return userRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec l'ID: " + id));
+    }
+
+    public User getUserRole (UserRole role){
+        log.info("**************** Getting user's role ****************");
+        return (User) userRepository.findUserByRole(role);
     }
 
     public User getUserByEmail(String email) {
@@ -98,14 +105,16 @@ public class UserService {
             throw new BadRequestException("Cet email existe déja");
         }
 
-        User user = new User();
-        user.setNom(userDTO.getNom());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setRole(userDTO.getRole());
-        user.setDateOfBirth(userDTO.getDateNaissance());
-        user.setInscriptionDate(LocalDate.now());
-        user.setArticleCount(0);
+        User user = User.builder()
+                .nom(userDTO.getNom())
+                .email(userDTO.getEmail())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .role(userDTO.getRole())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .inscriptionDate(userDTO.getInscriptionDate() != null ?
+                        userDTO.getInscriptionDate() : LocalDate.now())
+                .articleCount(0)
+                .build();
 
         return userRepository.save(user);
     }
@@ -128,7 +137,7 @@ public class UserService {
 
         user.setNom(userDTO.getNom());
         user.setEmail(userDTO.getEmail());
-        user.setDateOfBirth(userDTO.getDateNaissance());
+        user.setDateOfBirth(userDTO.getDateOfBirth());
         user.setRole(userDTO.getRole());
 
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {

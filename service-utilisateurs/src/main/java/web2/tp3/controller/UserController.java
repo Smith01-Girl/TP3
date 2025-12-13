@@ -49,6 +49,11 @@ public class UserController {
         return userService.countByRole(role);
     }
 
+    @GetMapping("/{id}/role")
+    public UserRole getUserRole(@PathVariable Long id) {
+        return userService.getUserById(id).getRole();
+    }
+
     @GetMapping("/deleteNews/{newsId}")
     Boolean canDeleteNews(@PathVariable Long newsId){
         return userService.canUserDeleteNews(newsId);

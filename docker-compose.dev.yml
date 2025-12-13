@@ -16,7 +16,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - tp3-network
+      - tp3-microservice
 
   # Discovery
   discovery:
@@ -25,7 +25,7 @@ services:
     ports:
       - "8761:8761"
     networks:
-        - tp3-network
+        - tp3-microservice
   # Gateway
   gateway:
     build: ./gateway
@@ -38,7 +38,7 @@ services:
     environment:
         eureka.client.service-url.defaultZone: http://discovery:8761/eureka
     networks:
-        - tp3-network
+        - tp3-microservice
 
 
   # Service Utilisateurs
@@ -59,25 +59,25 @@ services:
       eureka.client.register-with-eureka: "true"
       eureka.client.fetch-registry: "true"
     networks:
-        - tp3-network
+        - tp3-microservice
 
-  service-statistiques:
-    build: service-statistiques
-    container_name: service-statistiques
-    depends_on:
-      - discovery
-#      - service-nouvelles a mettre
-    ports:
-      - "8084:8080"
-      - "5008:5008"
-    environment:
-      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
-    networks:
-      - tp3-network
+#  service-statistiques:
+#    build: service-statistiques
+#    container_name: service-statistiques
+#    depends_on:
+#      - discovery
+##      - service-nouvelles a mettre
+#    ports:
+#      - "8084:8080"
+#      - "5008:5008"
+#    environment:
+#      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+#    networks:
+#      - tp3-microservice
 
 volumes:
   mysql_data:
 
 networks:
-  tp3-network:
+  tp3-microservice:
     driver: bridge
