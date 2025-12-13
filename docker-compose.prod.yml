@@ -1,0 +1,60 @@
+version: '3.8'
+name: tp3-microservices-prod
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: filmdb
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - tp3-network
+
+  discovery:
+    build: ./discovery
+    container_name: discovery
+
+    networks:
+      - tp3-network
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    depends_on:
+      - discovery
+    ports:
+      - "8080:8080"
+    environment:
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+    networks:
+      - tp3-network
+
+  service-utilisateurs:
+    build: ./service-utilisateurs
+    container_name: service-utilisateurs
+    depends_on:
+      - db
+      - discovery
+
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/filmdb
+      spring.datasource.username: ${MYSQL_USER}
+      spring.datasource.password: ${MYSQL_PASSWORD}
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+    networks:
+      - tp3-network
+
+
+volumes:
+  mysql_data:
+
+networks:
+  tp3-network:
+    driver: bridge
