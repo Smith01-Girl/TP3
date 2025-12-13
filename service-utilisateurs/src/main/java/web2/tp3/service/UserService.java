@@ -51,6 +51,11 @@ public class UserService {
 
 
     public void createDefaultUsers() {
+        if (userRepository.count() > 0) {
+            log.info("Utilisateurs déjà présents.");
+            return;
+        }
+
         log.info("Création des utilisateurs par défaut...");
         List<User> defaultUsers = List.of(
                 createDefaultUser("Grace", "g@gmail.com", "1234", UserRole.ADMIN),
