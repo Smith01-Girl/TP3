@@ -66,9 +66,12 @@ services:
     container_name: service-statistiques
     depends_on:
       - discovery
+#      - service-nouvelles a mettre
     ports:
       - "8084:8080"
-      - "5008:5005"
+      - "5008:5008"
+    environment:
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
     networks:
       - tp3-network
 
