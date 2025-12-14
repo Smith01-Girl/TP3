@@ -46,11 +46,4 @@ docker-compose -f docker-compose.prod.yml up --build
 - `PUT /api/users/{id}` - Modifier
 - `DELETE /api/users/{id}` - Supprimer
 
-### Permissions (pour autres services)
-- `GET /api/users/{userId}/permissions/can-create-news`
-- `GET /api/users/{userId}/permissions/can-modify-news`
-- `GET /api/users/{userId}/permissions/can-delete-news`
-- `GET /api/users/{userId}/permissions/can-create-criteria`
-- `POST /api/users/{userId}/increment-articles`
-- `GET /api/users/{userId}/journalist-level`
 
