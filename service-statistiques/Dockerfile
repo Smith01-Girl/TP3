@@ -1,25 +1,4 @@
-FROM openjdk:17-ea-slim AS build
-WORKDIR /app
+FROM ubuntu:latest
+LABEL authors="PC"
 
-# Copier wrapper Maven
-COPY .mvn/ .mvn
-COPY mvnw .
-COPY pom.xml .
-
-
-# Copier code source
-COPY src/ ./src
-RUN ./mvnw clean package -DskipTests
-
-
-FROM openjdk:17-ea-slim
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
-
-EXPOSE 8084
-EXPOSE 5005
-
-ENTRYPOINT ["java", "-jar", \
-    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", \
-    "app.jar"]
+ENTRYPOINT ["top", "-b"]
