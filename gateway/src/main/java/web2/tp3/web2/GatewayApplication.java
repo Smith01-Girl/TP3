@@ -26,6 +26,7 @@ public class GatewayApplication {
                 .route(path("/statistiques/**"), http("http://service-statistiques:8081"))
 
                 .build();
+                //en attendant les autres
     }*/
 
 
