@@ -1,0 +1,78 @@
+
+name: tp3-microservices-prod
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-tp33}
+      MYSQL_DATABASE: tp3_db
+      MYSQL_USER: ${MYSQL_USER:-tp3}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-1234}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+    networks:
+      - tp3-microservice
+
+  # Discovery
+  discovery:
+    build: ./discovery
+    container_name: discovery
+    restart: unless-stopped
+    networks:
+      - tp3-microservice
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+
+  # Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: DockerfileProd
+    container_name: gateway
+    restart: unless-stopped
+    depends_on:
+      - discovery
+    ports:
+    - "8080:8080"
+    environment:
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - tp3-microservice
+
+  # Service-utilisateurs
+  service-utilisateurs:
+    build:
+      context: ./service-utilisateurs
+      dockerfile: DockerfileProd
+    container_name: service-utilisateurs
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      discovery:
+        condition: service_started
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/${MYSQL_DATABASE:-tp3_db}
+      spring.datasource.username: ${MYSQL_USER:-tp3}
+      spring.datasource.password: ${MYSQL_PASSWORD:-1234}
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - tp3-microservice
+
+
+volumes:
+  mysql_data_prod:
+
+networks:
+  tp3-microservice:
+    driver: bridge
