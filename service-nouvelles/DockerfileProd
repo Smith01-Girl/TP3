@@ -1,0 +1,35 @@
+FROM openjdk:17-ea-slim AS build
+WORKDIR /app
+
+# Copier wrapper Maven
+COPY .mvn/ .mvn
+COPY mvnw .
+COPY pom.xml .
+
+# Copier code source
+COPY src/ ./src
+
+# Compiler en mode production
+RUN ./mvnw clean package -DskipTests -Pprod
+
+
+FROM openjdk:17-ea-slim
+WORKDIR /app
+
+# Créer un utilisateur non-root pour la sécurité
+RUN addgroup --system spring && adduser --system spring --ingroup spring
+USER spring:spring
+
+# Copier JAR
+COPY --from=build /app/target/*.jar app.jar
+
+# Port interne uniquement
+EXPOSE 8080
+
+# Démarrer SANS debug
+ENTRYPOINT ["java", \
+    "-Xms256m", \
+    "-Xmx512m", \
+    "-Dspring.profiles.active=prod", \
+    "-jar", \
+    "app.jar"]
