@@ -1,14 +1,10 @@
 FROM openjdk:17-ea-slim AS build
 WORKDIR /app
-
-# Copier wrapper Maven
 COPY .mvn/ .mvn
-COPY mvnw .
-COPY pom.xml .
-
-# Copier code source
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
 COPY src/ ./src
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw package -DskipTests
 
 
 FROM openjdk:17-ea-slim

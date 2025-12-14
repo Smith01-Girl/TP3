@@ -61,7 +61,7 @@ public class CritereService {
         List<NouvelleDTO> nouvelles;
         try {
             nouvelles = restClient.get()
-                    .uri("http://service-nouvelles:8080/nouvelles")
+                    .uri("http://service-nouvelles:8082/nouvelles")
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<NouvelleDTO>>() {});
         } catch (Exception e) {
