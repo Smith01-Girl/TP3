@@ -94,6 +94,27 @@ services:
     networks:
       - tp3-microservice
 
+  service-statistiques:
+    build: service-statistiques
+    container_name: service-statistiques
+    depends_on:
+      - db
+      - discovery
+      - service-nouvelles
+      - service-criteres
+    ports:
+      - "8084:8084"
+      - "5008:5005"
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/tp3_db
+      spring.datasource.username: tp3
+      spring.datasource.password: 1234
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+    networks:
+      - tp3-microservice
+
 volumes:
   mysql_data:
 
