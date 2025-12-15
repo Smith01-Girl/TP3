@@ -6,14 +6,16 @@ public class NouvelleMapper {
 
     //Entite Nouvelle vers son DTO
     public static NouvelleDTO toDTO(Nouvelle n) {
-        return new NouvelleDTO(
-                n.getTitre(),
-                n.getSrc(),
-                n.getDate(),
-                n.getResume(),
-                n.getTexte()
-        );
+        NouvelleDTO dto = new NouvelleDTO();
+        dto.setId(n.getId());
+        dto.setTitre(n.getTitre());
+        dto.setSrc(n.getSrc());
+        dto.setDate(n.getDate());
+        dto.setResume(n.getResume());
+        dto.setTexte(n.getTexte());
+        return dto;
     }
+
     //Entite DTO vers l'entite Nouvelle
     public static Nouvelle toEntity(NouvelleDTO dto) {
         Nouvelle n = new Nouvelle();

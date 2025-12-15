@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Nouvelle {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Un titre est requis")
