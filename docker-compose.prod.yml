@@ -68,6 +68,78 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     networks:
       - tp3-microservice
+  # Service-nouvelles
+  service-nouvelles:
+    build:
+      context: ./service-nouvelles
+      dockerfile: DockerfileProd
+    container_name: service-nouvelles
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      discovery:
+        condition: service_started
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/${MYSQL_DATABASE:-tp3_db}
+      spring.datasource.username: ${MYSQL_USER:-tp3}
+      spring.datasource.password: ${MYSQL_PASSWORD:-1234}
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - tp3-microservice
+
+  # Service-criteres
+  service-criteres:
+    build:
+      context: ./service-criteres
+      dockerfile: DockerfileProd
+    container_name: service-criteres
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      discovery:
+        condition: service_started
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/${MYSQL_DATABASE:-tp3_db}
+      spring.datasource.username: ${MYSQL_USER:-tp3}
+      spring.datasource.password: ${MYSQL_PASSWORD:-1234}
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - tp3-microservice
+
+  # Service-statistiques
+  service-statistiques:
+    build:
+      context: ./service-statistiques
+      dockerfile: DockerfileProd
+    container_name: service-statistiques
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      discovery:
+        condition: service_started
+      service-nouvelles:
+        condition: service_started
+      service-criteres:
+        condition: service_started
+    environment:
+      spring.datasource.url: jdbc:mysql://db:3306/${MYSQL_DATABASE:-tp3_db}
+      spring.datasource.username: ${MYSQL_USER:-tp3}
+      spring.datasource.password: ${MYSQL_PASSWORD:-1234}
+      eureka.client.service-url.defaultZone: http://discovery:8761/eureka
+      eureka.client.register-with-eureka: "true"
+      eureka.client.fetch-registry: "true"
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - tp3-microservice
 
 
 volumes:
